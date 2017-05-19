@@ -23,28 +23,25 @@ main:
 	mov rbp, rsp
 
 	cmp rdi, 2
-	jne test
+	jne GrabUserInput
 
 	mov rdi,  QWORD PTR[rsi + 8]
 	mov r15, rdi
 
-	jmp testing
+	jmp StrToL
 
-test:
+GrabUserInput:
 
-	sub rsp, 64
+	sub rsp, 128
 	mov rdi, rsp
 
-	mov rsi, 64
+	mov rsi, 128
 	mov rdx, stdin
 	call fgets
 
 	mov r15, rsp
 
-
-	jmp testing
-
-testing:
+StrToL:
 
 	mov rdi, r15
 	mov edx, 10
