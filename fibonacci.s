@@ -1,5 +1,11 @@
 .intel_syntax noprefix
 
+Preface:
+	.asciz "0x"
+
+Postface:
+	.asciz "\n"
+
 Hex:
 	.asciz "%llx"
 
@@ -61,6 +67,9 @@ main:
 
 	push rbp
 
+	mov rdi, OFFSET Preface
+	xor rsi, rsi
+	call printf
 
 	cmp r12, 0x0
 	je ThirdLevelBitSkip
@@ -91,8 +100,14 @@ FirstLevelBitSkip:
 	mov rsi, r15
 	call printf
 
-	ret
+	mov rdi, OFFSET Postface
+	xor rsi, rsi
+	call printf
 
+	pop rbp
+
+	mov eax, 1
+	ret
 
 SmallNumber:
 	push rbp
@@ -100,6 +115,8 @@ SmallNumber:
     mov rdi, OFFSET SmallDigit
 	mov esi, eax
     call printf
+
+	pop rbp
     mov eax, 1
     ret
 
