@@ -1,16 +1,11 @@
 .intel_syntax noprefix
 
-Format:
-	.asciz "%ld\n"
+Hex:
+	.asciz "%llx"
 
-ZeroResult:
-	.asciz "0"
+SmallDigit:
+	.asciz "%d\n"
 
-OneResult:
-	.asciz "1"
-
-TwoResult:
-	.asciz "2"
 
 .globl main
 main:
@@ -22,50 +17,89 @@ main:
 	call strtol #dumps command line argument to eax
 
 	cmp eax, 0
-	je ExitZero
+	je SmallNumber
 
 	cmp eax, 1
-	je ExitOne
+	je SmallNumber
 
 	cmp eax, 2
-	je ExitTwo
+	je SmallNumber
 
-	mov ecx, eax #r15d is counter
-	sub ecx, 2
-	mov rax, 1
-	inc rbx
-	inc rdx
+	mov ecx, eax #Setting Counter
+	inc ecx
+
+	xor r8, r8
+	xor r9, r9
+	xor r10, r10
+	xor r11, r11
+	xor r12, r12
+	xor r13, r13
+	xor r14, r14
+	xor r15, r15
+
+	inc r15
 
 1:
-	add rax, rbx
-	mov rbx, rdx
-	mov rdx, rax
+	#add rax, rbx
+	#mov rbx, rdx
+	#mov rdx, rax
+
+    xchg r11, r15
+    add r11, r15
+
+	xchg r10, r14
+	adc r10, r14
+
+	xchg r9, r13
+	adc r9, r13
+
+	xchg r8, r12
+	adc r8, r12
 
 	sub ecx, 1
 	jnz 1b
 
 	push rbp
-	mov rdi, OFFSET Format
-	mov rsi, rax
+
+
+	cmp r12, 0x0
+	je ThirdLevelBitSkip
+
+	mov rdi, OFFSET Hex
+	mov rsi, r12
+	call printf
+
+ThirdLevelBitSkip:
+	cmp r13, 0x0
+	je SecondLevelBitSkip
+
+	mov rdi, OFFSET Hex
+	mov rsi, r13
+	call printf
+
+SecondLevelBitSkip:
+	cmp r14, 0x0
+	je FirstLevelBitSkip
+
+	mov rdi, OFFSET Hex
+	mov rsi, r14
+	call printf
+
+FirstLevelBitSkip:
+
+	mov rdi, OFFSET Hex
+	mov rsi, r15
 	call printf
 
 	ret
 
 
-ExitZero:
-    mov rdi, OFFSET ZeroResult
-    call puts
+SmallNumber:
+	push rbp
+
+    mov rdi, OFFSET SmallDigit
+	mov esi, eax
+    call printf
     mov eax, 1
     ret
 
-ExitOne:
-    mov rdi, OFFSET OneResult
-    call puts
-    mov eax, 1
-    ret
-
-ExitTwo:
-    mov rdi, OFFSET TwoResult
-    call puts
-    mov eax, 1
-    ret
