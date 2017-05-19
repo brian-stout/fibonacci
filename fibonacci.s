@@ -9,10 +9,6 @@ Postface:
 Hex:
 	.asciz "%llx"
 
-SmallDigit:
-	.asciz "%d\n"
-
-
 .globl main
 main:
 	main:
@@ -118,7 +114,11 @@ FirstOverflowSkip:
 SmallNumber:
 	push rbp
 
-    mov rdi, OFFSET SmallDigit
+	mov rdi, OFFSET Preface
+	xor rsi, rsi
+	call printf
+
+    mov rdi, OFFSET Hex
 	mov esi, eax
     call printf
 
