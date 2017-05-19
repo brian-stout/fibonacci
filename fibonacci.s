@@ -34,14 +34,14 @@ main:
 	mov ecx, eax #Setting Counter
 	inc ecx
 
-	xor r8, r8
-	xor r9, r9
-	xor r10, r10
-	xor r11, r11
-	xor r12, r12
-	xor r13, r13
-	xor r14, r14
-	xor r15, r15
+	xor r8, r8 # Temporarily hold values for r12
+	xor r9, r9 # Temporarily hold values for r13
+	xor r10, r10 # Temporarily hold values for r14
+	xor r11, r11 # Temporarily hold values for r15
+	xor r12, r12 # Will be the over flow for r13
+	xor r13, r13 # Will be the over flow for r14
+	xor r14, r14 # Will be the over flow for r15
+	xor r15, r15 # The initial register 
 
 	inc r15
 
@@ -71,30 +71,35 @@ main:
 	xor rsi, rsi
 	call printf
 
+	# Jump to ThirdOverflowSkip Label to avoid printing hex if empty
 	cmp r12, 0x0
-	je ThirdLevelBitSkip
+	je ThirdOverflowSkip 
 
+	# printf("%llx", r12);
 	mov rdi, OFFSET Hex
 	mov rsi, r12
 	call printf
 
-ThirdLevelBitSkip:
+ThirdOverflowSkip:
+
+	#if (r13 == 0) { printf("%llx", r13); }
 	cmp r13, 0x0
-	je SecondLevelBitSkip
+	je SecondOverflowSkip
 
 	mov rdi, OFFSET Hex
 	mov rsi, r13
 	call printf
 
-SecondLevelBitSkip:
+SecondOverflowSkip:
+
 	cmp r14, 0x0
-	je FirstLevelBitSkip
+	je FirstOverflowSkip
 
 	mov rdi, OFFSET Hex
 	mov rsi, r14
 	call printf
 
-FirstLevelBitSkip:
+FirstOverflowSkip:
 
 	mov rdi, OFFSET Hex
 	mov rsi, r15
