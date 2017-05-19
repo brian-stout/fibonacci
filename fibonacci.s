@@ -28,9 +28,6 @@ main:
 	cmp eax, 1
 	je SmallNumber
 
-	cmp eax, 2
-	je SmallNumber
-
 	mov ecx, eax #Setting Counter
 	inc ecx
 
@@ -75,6 +72,7 @@ main:
 	cmp r12, 0x0
 	je ThirdOverflowSkip 
 
+	# prints out the overflow register for r13
 	# printf("%llx", r12);
 	mov rdi, OFFSET Hex
 	mov rsi, r12
@@ -82,10 +80,11 @@ main:
 
 ThirdOverflowSkip:
 
-	#if (r13 == 0) { printf("%llx", r13); }
+	#
 	cmp r13, 0x0
 	je SecondOverflowSkip
 
+	#Prints the overflow register for r14
 	mov rdi, OFFSET Hex
 	mov rsi, r13
 	call printf
@@ -95,6 +94,7 @@ SecondOverflowSkip:
 	cmp r14, 0x0
 	je FirstOverflowSkip
 
+	#Prints the overflow register for r15
 	mov rdi, OFFSET Hex
 	mov rsi, r14
 	call printf
@@ -105,6 +105,7 @@ FirstOverflowSkip:
 	mov rsi, r15
 	call printf
 
+	#Prints out the hex of the fibonacci number
 	mov rdi, OFFSET Postface
 	xor rsi, rsi
 	call printf
