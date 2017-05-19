@@ -1,5 +1,8 @@
 .intel_syntax noprefix
 
+UsageString:
+	.asciz "USAGE:  ./test <number 0-300> \n"
+
 Preface:
 	.asciz "0x"
 
@@ -11,8 +14,39 @@ Hex:
 
 .globl main
 main:
-	main:
+
+	cmp rdi, 2
+	jg Error
+
+	xor r15, r15
+
+	mov rbp, rsp
+
+	cmp rdi, 2
+	jne test
+
 	mov rdi,  QWORD PTR[rsi + 8]
+	mov r15, rdi
+
+	jmp testing
+
+test:
+
+	sub rsp, 64
+	mov rdi, rsp
+
+	mov rsi, 64
+	mov rdx, stdin
+	call fgets
+
+	mov r15, rsp
+
+
+	jmp testing
+
+testing:
+
+	mov rdi, r15
 	mov edx, 10
 	mov esi, 0
 
@@ -27,6 +61,9 @@ main:
 	mov ecx, eax #Setting Counter
 	inc ecx
 
+	sub rbp, rsp
+	add rsp, rbp
+
 	xor r8, r8 # Temporarily hold values for r12
 	xor r9, r9 # Temporarily hold values for r13
 	xor r10, r10 # Temporarily hold values for r14
@@ -38,11 +75,8 @@ main:
 
 	inc r15
 
+	#Fibonacci Loop
 1:
-	#add rax, rbx
-	#mov rbx, rdx
-	#mov rdx, rax
-
     xchg r11, r15
     add r11, r15
 
@@ -55,9 +89,12 @@ main:
 	xchg r8, r12
 	adc r8, r12
 
+	#Decrement by one each run through
 	sub ecx, 1
+	#If counter register 0 end loop
 	jnz 1b
 
+	#Stack alignment
 	push rbp
 
 	mov rdi, OFFSET Preface
@@ -76,7 +113,7 @@ main:
 
 ThirdOverflowSkip:
 
-	#
+	# Jump to the SecondOverFlowSkip label to avoid printing hex if empty
 	cmp r13, 0x0
 	je SecondOverflowSkip
 
@@ -87,6 +124,7 @@ ThirdOverflowSkip:
 
 SecondOverflowSkip:
 
+	# Jump to FirstOverFlowSkip label to avoid printing hex if empty
 	cmp r14, 0x0
 	je FirstOverflowSkip
 
@@ -112,6 +150,7 @@ FirstOverflowSkip:
 	ret
 
 SmallNumber:
+
 	push rbp
 
 	mov rdi, OFFSET Preface
@@ -119,10 +158,19 @@ SmallNumber:
 	call printf
 
     mov rdi, OFFSET Hex
-	mov esi, eax
+	mov rsi, rax
     call printf
 
 	pop rbp
-    mov eax, 1
+    mov rax, 1
     ret
+
+Error:
+	push rbp
+	mov rdi, OFFSET UsageString
+	xor rsi, rsi
+	call printf
+	pop rbp
+	mov rax, 0
+	ret
 
