@@ -66,10 +66,14 @@ StrToL:
 
 GoodNumber:
 
-	xor r15, rax
+	xor r15, r15
+	mov r15, rax
 
 	cmp r15, 0
 	jl Error
+
+	cmp r15, 300
+	jge Error
 
 	cmp r15, 0
 	je SmallNumber
