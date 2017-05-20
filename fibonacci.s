@@ -66,10 +66,15 @@ StrToL:
 
 GoodNumber:
 
-	cmp eax, 0
+	xor r15, rax
+
+	cmp r15, 0
+	jl Error
+
+	cmp r15, 0
 	je SmallNumber
 
-	cmp eax, 1
+	cmp r15, 1
 	je SmallNumber
 
 	mov ecx, eax #Setting Counter
