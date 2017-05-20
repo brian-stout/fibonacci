@@ -21,30 +21,43 @@ Decimal:
 .globl main
 main:
 
+	#If there are more than one command line arguments, error out
 	cmp rdi, 2
 	jg Error
 
+	#Setting r15 to 0 just in case
 	xor r15, r15
 
+	#Setting the stack's base pointer
 	mov rbp, rsp
 
+	#If the user did not give a command line argument
 	cmp rdi, 2
-	jne GrabUserInput
+	jne GrabUserInput #Move to the section that calls fgets and avoids the command line
 
+	#If there is a command line argument, grab the address and add it to a general register
 	mov rdi,  QWORD PTR[rsi + 8]
 	mov r15, rdi
 
+	#Jump over the user input that runs if there are no command line arguments
 	jmp StrToL
 
 GrabUserInput:
 
+	#Creating space in the stack
 	sub rsp, 128
+
+	#Setting up the address for fgets
 	mov rdi, rsp
 
+	#How much memory fgets can write to
 	mov rsi, 128
+
+	#Specify stdin is being used as the iostream
 	mov rdx, stdin
 	call fgets
 
+	#Save the address to the the start of the string in r15
 	mov r15, rsp
 
 StrToL:
