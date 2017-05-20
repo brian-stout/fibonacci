@@ -12,6 +12,12 @@ Postface:
 Hex:
 	.asciz "%llx"
 
+String:
+	.asciz "%s\n"
+
+Decimal:
+	.asciz "%d"
+
 .globl main
 main:
 
@@ -45,9 +51,20 @@ StrToL:
 
 	mov rdi, r15
 	mov edx, 10
-	mov esi, 0
+	sub rsp, 16
+	mov rsi, rsp
+
 
 	call strtol #dumps command line argument to eax
+	xor r15, r15
+	mov r15, [rsp]
+	cmp BYTE PTR [r15], 0
+	je GoodNumber
+	cmp BYTE PTR [r15], 0xA
+	je GoodNumber
+	jmp Error
+
+GoodNumber:
 
 	cmp eax, 0
 	je SmallNumber
@@ -57,9 +74,6 @@ StrToL:
 
 	mov ecx, eax #Setting Counter
 	inc ecx
-
-	sub rbp, rsp
-	add rsp, rbp
 
 	xor r8, r8 # Temporarily hold values for r12
 	xor r9, r9 # Temporarily hold values for r13
@@ -144,6 +158,10 @@ FirstOverflowSkip:
 	pop rbp
 
 	mov eax, 1
+
+	sub rbp, rsp
+	add rsp, rbp
+
 	ret
 
 SmallNumber:
@@ -160,6 +178,10 @@ SmallNumber:
 
 	pop rbp
     mov rax, 1
+
+	sub rbp, rsp
+	add rsp, rbp
+
     ret
 
 Error:
@@ -169,5 +191,9 @@ Error:
 	call printf
 	pop rbp
 	mov rax, 0
+
+	sub rbp, rsp
+	add rsp, rbp
+
 	ret
 
