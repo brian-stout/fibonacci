@@ -62,60 +62,85 @@ GrabUserInput:
 
 StrToL:
 
+	#Handing the string to strtol
 	mov rdi, r15
+
+	#Specifying base 10 for strtol
 	mov edx, 10
+
+	#Creating more space on the stack for strtol's endptr
 	sub rsp, 16
 	mov rsi, rsp
 
-
 	call strtol #dumps command line argument to eax
+
+	#Setting r15 to zero
 	xor r15, r15
+
+	#Storing the thing at rsp (endptr from strtol) to r15
 	mov r15, [rsp]
+	#Deferencing the endptr and comparing it to null, if it is null there were no errors
 	cmp BYTE PTR [r15], 0
 	je GoodNumber
+
+	#If there is something at the endptr, see if it's a newline from fgets
+	#	If it isn't then strtol found non-numeric characters
 	cmp BYTE PTR [r15], 0xA
 	je GoodNumber
+
+	#If all the checks failed, error out
 	jmp Error
 
 GoodNumber:
 
+	#Setting r15 to 0
 	xor r15, r15
+
+	#Grabbing the number returned from strtol so jumps and cmps don't modify it
 	mov r15, rax
 
+	#If the number is less than zero, error out
 	cmp r15, 0
 	jl Error
 
+	#If the number is 300 or more, error out
 	cmp r15, 300
 	jge Error
 
+	#If the number is 0, don't bother with the loop and just print out zero
 	cmp r15, 0
 	je SmallNumber
 
+	#If the number is 1, don't bother with the loop and just print out one
 	cmp r15, 1
 	je SmallNumber
 
 	mov ecx, eax #Setting Counter
-	inc ecx
+	inc ecx	#Avoids off by one error since the fib sequence starts at 0
 
-	xor r8, r8 # Temporarily hold values for r12
-	xor r9, r9 # Temporarily hold values for r13
-	xor r10, r10 # Temporarily hold values for r14
-	xor r11, r11 # Temporarily hold values for r15
-	xor r12, r12 # Will be the over flow for r13
-	xor r13, r13 # Will be the over flow for r14
-	xor r14, r14 # Will be the over flow for r15
-	xor r15, r15 # The initial register 
+	xor r8, r8 #Temporarily hold values for r12
+	xor r9, r9 #Temporarily hold values for r13
+	xor r10, r10 #Temporarily hold values for r14
+	xor r11, r11 #Temporarily hold values for r15
+	xor r12, r12 #Will be the over flow for r13
+	xor r13, r13 #Will be the over flow for r14
+	xor r14, r14 #Will be the over flow for r15
+	xor r15, r15 #The initial register 
 
 	inc r15
 
 	#Fibonacci Loop
 1:
+	#Flip the values to save them
     xchg r11, r15
+
+	#Add the results together to get the next one
     add r11, r15
 
 	xchg r10, r14
-	adc r10, r14
+	adc r10, r14 #Will add overflow into another register
 
+	#Repeat for additional overflows
 	xchg r9, r13
 	adc r9, r13
 
@@ -130,6 +155,7 @@ GoodNumber:
 	#Stack alignment
 	push rbp
 
+	#Complicated way to print out '0x'
 	mov rdi, OFFSET Preface
 	xor rsi, rsi
 	call printf
@@ -168,19 +194,19 @@ SecondOverflowSkip:
 
 FirstOverflowSkip:
 
+	#Prints out the first register containing the early digits of the fib number
 	mov rdi, OFFSET Hex
 	mov rsi, r15
 	call printf
 
-	#Prints out the hex of the fibonacci number
+	#Complicated way to print out a newline
 	mov rdi, OFFSET Postface
 	xor rsi, rsi
 	call printf
 
-	pop rbp
-
 	mov eax, 1
 
+	#Removing all the stack space set aside for a clean close
 	sub rbp, rsp
 	add rsp, rbp
 
@@ -188,6 +214,7 @@ FirstOverflowSkip:
 
 SmallNumber:
 
+	#Stack alignment
 	push rbp
 
 	mov rdi, OFFSET Preface
@@ -198,22 +225,24 @@ SmallNumber:
 	mov rsi, rax
     call printf
 
-	pop rbp
     mov rax, 1
 
+	#Removing all the stack space set aside for a clean close
 	sub rbp, rsp
 	add rsp, rbp
 
     ret
 
 Error:
+	#Stack alignment
 	push rbp
 	mov rdi, OFFSET UsageString
 	xor rsi, rsi
 	call printf
-	pop rbp
+
 	mov rax, 0
 
+	#Removing all the stack space set aside for a clean close
 	sub rbp, rsp
 	add rsp, rbp
 
